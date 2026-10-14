@@ -6,14 +6,24 @@ from sqlalchemy.orm import Session
 from backend.app.schemas.trend import TrendResponse, TrendDataPoint
 from backend.app.schemas.common import ApiResponseMetadata
 from backend.app.services.standards import get_epa_category, determine_trend
-from backend.app.services.prediction_service import CITY_BASELINES
+# from backend.app.services.prediction_service import CITY_BASELINES
+# Demo-only values for the Overview page.
+# Replace with database queries when historical data is integrated.
+DEMO_CITY_BASELINES = {
+    "Delhi": 185.0,
+    "Mumbai": 92.0,
+    "Pune": 78.0,
+    "Bengaluru": 48.0,
+    "Chennai": 65.0,
+    "Hyderabad": 115.0,
+}
 
 class TrendService:
     def __init__(self, db: Session):
         self.db = db
 
     def get_trends(self, city: str = "Delhi", horizon_days: int = 7) -> TrendResponse:
-        reference_aqi = CITY_BASELINES.get(city, 120.0)
+        reference_aqi = DEMO_CITY_BASELINES.get(city, 120.0)
         current_cat, _, _, _ = get_epa_category(reference_aqi)
 
         now = datetime.utcnow()
