@@ -1,0 +1,65 @@
+# Python / Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+ENV/
+env/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+aqi_ai.db
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment files
+.env
+.env.production
+.env.development
+.env.local
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# Large Data & Model Artifacts
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.pth
+*.onnx
+!backend/app/ml/models/.gitkeep
+data/raw/
+data/processed/
+*.csv
+!backend/app/data/*.example.csv
+!backend/app/data/README.md
+
+# IDE & OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
