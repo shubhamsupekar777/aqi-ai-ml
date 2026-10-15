@@ -11,7 +11,7 @@ export const AppLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 font-sans antialiased text-slate-900">
       {/* Top Banner Notice */}
-      <DemoBadge variant="banner" />
+      {/* <DemoBadge variant="banner" /> */}
 
       <div className="flex-1 flex overflow-hidden">
         {/* Desktop Fixed Sidebar */}

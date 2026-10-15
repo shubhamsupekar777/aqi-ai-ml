@@ -10,15 +10,26 @@ from backend.app.schemas.risk import (
 )
 from backend.app.schemas.common import ApiResponseMetadata
 from backend.app.services.standards import get_epa_category, get_risk_assessment
-from backend.app.services.prediction_service import CITY_BASELINES
-
+from fastapi import HTTPException
 class RiskService:
     def __init__(self, db: Session):
         self.db = db
 
     def assess_risk(self, req: RiskAssessmentRequest) -> RiskAssessmentResponse:
+        # city = req.city or "Delhi"
+        # reference_aqi = req.aqi if req.aqi is not None else CITY_BASELINES.get(city, 120.0)
         city = req.city or "Delhi"
-        reference_aqi = req.aqi if req.aqi is not None else CITY_BASELINES.get(city, 120.0)
+        if req.aqi is None:
+            raise HTTPException(
+                status_code=422,
+                detail=(
+                    "AQI value is required. Historical AQI lookup by city "
+                    "AQI value is required. Historical AQI lookup by city "
+                ),
+                
+            )
+        reference_aqi = float(req.aqi)
+                
 
         cat_name, _, _, _ = get_epa_category(reference_aqi)
         level, color, title, summary, precautions = get_risk_assessment(reference_aqi)

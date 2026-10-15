@@ -64,11 +64,11 @@ export const Topbar: React.FC<TopbarProps> = ({ onToggleMobileNav }) => {
           </div>
 
           {/* Model Status Pill */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-medium border border-slate-200">
+          {/* <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-medium border border-slate-200">
             <Cpu className="w-3 h-3 text-slate-500" />
             <span>Model:</span>
             <span className="text-teal-700 font-semibold font-mono">Demo Rule Engine</span>
-          </div>
+          </div> */}
 
           {/* Mode Pill (Mock vs API) */}
           <div className="flex items-center gap-1.5">

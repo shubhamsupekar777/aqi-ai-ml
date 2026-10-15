@@ -11,8 +11,9 @@ class Settings(BaseSettings):
     
     # Database
     # Defaults to PostgreSQL, gracefully falls back to local SQLite if PostgreSQL is unavailable
-    DATABASE_URL: str = "postgresql+psycopg://aqi_user:aqi_password@localhost:5432/aqi_ai"
+    DATABASE_URL: str = "postgresql+psycopg://postgres:Shubham12345@localhost:5432/aqi"
     SQLITE_FALLBACK_URL: str = "sqlite:///./aqi_ai.db"
+
     
     # CORS
     CORS_ORIGINS: Union[str, List[str]] = ["http://localhost:5173", "http://127.0.0.1:5173"]
