@@ -50,7 +50,7 @@ type DailyChartPoint = {
  * Missing days receive a null AQI so the chart shows a gap rather than
  * drawing a line across dates for which no observation exists.
  */
-const buildDailyChartHistory = <T extends { date: string; aqi: number; category: string }>(
+const buildDailyChartHistory = <T extends { date: string; aqi: number; category?: string|null }>(
   observations: T[],
 ): DailyChartPoint[] => {
   if (observations.length === 0) return [];
@@ -63,7 +63,7 @@ const buildDailyChartHistory = <T extends { date: string; aqi: number; category:
     return observations.map((point) => ({
       date: point.date,
       aqi: point.aqi,
-      category: point.category,
+      category: point.category ?? null,
       isMissing: false,
     }));
   }
