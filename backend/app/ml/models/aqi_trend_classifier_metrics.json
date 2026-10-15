@@ -1,0 +1,109 @@
+{
+  "model_name": "RandomForestClassifier_AQI_Trend",
+  "target": "trend_direction",
+  "target_source": "aqi_next_day - AQI",
+  "stability_threshold": 3.0,
+  "features": [
+    "AQI",
+    "PM2.5",
+    "PM10",
+    "NO",
+    "NO2",
+    "NOx",
+    "NH3",
+    "CO",
+    "SO2",
+    "O3",
+    "Benzene",
+    "Toluene",
+    "Xylene",
+    "temperature_2m",
+    "relative_humidity_2m",
+    "wind_speed_10m",
+    "wind_direction_10m_dominant",
+    "precipitation",
+    "surface_pressure",
+    "latitude",
+    "longitude",
+    "day_of_week",
+    "month",
+    "aqi_lag_1d",
+    "aqi_lag_3d",
+    "aqi_lag_7d",
+    "aqi_rolling_mean_7d",
+    "City",
+    "season"
+  ],
+  "train_rows": 12833,
+  "test_rows": 7492,
+  "train_start": "2015-01-08",
+  "train_end": "2019-05-21",
+  "test_start": "2019-05-23",
+  "test_end": "2020-06-24",
+  "split_date": "2019-05-23",
+  "class_counts_all": {
+    "Increasing": 8567,
+    "Decreasing": 8320,
+    "Stable": 3453
+  },
+  "accuracy": 0.5274959957287774,
+  "balanced_accuracy": 0.46680740993304287,
+  "macro_precision": 0.522035694599447,
+  "macro_recall": 0.46680740993304287,
+  "macro_f1": 0.45228103385363716,
+  "classification_report": {
+    "Decreasing": {
+      "precision": 0.61280353200883,
+      "recall": 0.48735955056179775,
+      "f1-score": 0.5429297868179151,
+      "support": 2848.0
+    },
+    "Stable": {
+      "precision": 0.45962732919254656,
+      "recall": 0.13627992633517497,
+      "f1-score": 0.21022727272727273,
+      "support": 1629.0
+    },
+    "Increasing": {
+      "precision": 0.4936762225969646,
+      "recall": 0.7767827529021559,
+      "f1-score": 0.6036860420157236,
+      "support": 3015.0
+    },
+    "accuracy": 0.5274959957287774,
+    "macro avg": {
+      "precision": 0.5220356945994471,
+      "recall": 0.46680740993304287,
+      "f1-score": 0.45228103385363716,
+      "support": 7492.0
+    },
+    "weighted avg": {
+      "precision": 0.5315578202810537,
+      "recall": 0.5274959957287774,
+      "f1-score": 0.4950397326224715,
+      "support": 7492.0
+    }
+  },
+  "confusion_matrix_labels": [
+    "Decreasing",
+    "Stable",
+    "Increasing"
+  ],
+  "confusion_matrix": [
+    [
+      1388,
+      137,
+      1323
+    ],
+    [
+      328,
+      222,
+      1079
+    ],
+    [
+      549,
+      124,
+      2342
+    ]
+  ]
+}

@@ -1,74 +1,82 @@
-import { TrendResponse, TrendDataPoint } from '../types/trend';
-import { getCategoryDefinition, determineTrendDirection } from '../lib/aqi';
+import type { TrendResponse, TrendDataPoint } from '../types/trend';
+import { determineTrendDirection } from '../lib/aqi';
 import { CITY_BASE_AQI } from './cities';
 
-export function getMockTrendsData(cityName: string = 'Delhi', horizonDays: number = 7): TrendResponse {
+const CPCB_BUCKETS = [
+  { category: 'Good', min: 0, max: 50 },
+  { category: 'Satisfactory', min: 51, max: 100 },
+  { category: 'Moderate', min: 101, max: 200 },
+  { category: 'Poor', min: 201, max: 300 },
+  { category: 'Very Poor', min: 301, max: 400 },
+  { category: 'Severe', min: 401, max: 500 },
+];
+
+function getCpcbCategory(aqi: number): string {
+  const value = Math.max(0, Math.min(500, Math.round(aqi)));
+  return CPCB_BUCKETS.find((bucket) => value >= bucket.min && value <= bucket.max)?.category ?? 'Severe';
+}
+
+/**
+ * Explicitly synthetic fixture used only when VITE_DATA_MODE=mock.
+ * The real Model 3 predicts a 3-day trend class, not future numerical AQI values,
+ * so this mock intentionally does not create a numerical forecast curve.
+ */
+export function getMockTrendsData(
+  cityName: string = 'Delhi',
+  horizonDays: number = 3,
+): TrendResponse {
   const cityProfile = CITY_BASE_AQI[cityName] || CITY_BASE_AQI['Delhi'];
-  const referenceAqi = cityProfile.current;
-  const currentCategory = getCategoryDefinition(referenceAqi).category;
+  const referenceAqi = Math.max(0, Math.min(500, Number(cityProfile.current)));
+  const currentCategory = getCpcbCategory(referenceAqi);
+  const trendInfo = determineTrendDirection(referenceAqi, Math.round(cityProfile.predNextDay));
+  const trendDirection = trendInfo.direction;
+  const now = new Date();
 
-  const today = new Date();
+  const historicalSeries: TrendDataPoint[] = Array.from({ length: 14 }, (_, index) => {
+    const date = new Date(now);
+    date.setDate(now.getDate() - (13 - index));
+    const offset = Math.round(Math.sin(index * 0.65) * 18 - 8 + index * 0.9);
+    const aqi = Math.max(0, Math.min(500, referenceAqi + offset));
 
-  // 14 days of historical observations
-  const historicalSeries: TrendDataPoint[] = Array.from({ length: 14 }).map((_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - (13 - i));
-    const offset = Math.round(Math.sin(i * 0.65) * 18 - 8 + (i * 0.9));
-    const val = Math.max(20, referenceAqi + offset);
     return {
-      date: d.toISOString().split('T')[0],
-      aqi: val,
-      category: getCategoryDefinition(val).category,
-      isForecast: false
+      date: date.toISOString().slice(0, 10),
+      aqi,
+      category: getCpcbCategory(aqi),
+      isForecast: false,
     };
   });
 
-  // Calculate projected endpoint
-  // Delhi trends up, Mumbai trends down, Pune stable, etc.
-  const targetAqi = cityProfile.predNextDay + (horizonDays > 3 ? (cityProfile.predNextDay - referenceAqi) * 1.5 : 0);
-  const trendInfo = determineTrendDirection(referenceAqi, Math.round(targetAqi));
-
-  // Generate forecast series
-  const forecastSeries: TrendDataPoint[] = Array.from({ length: horizonDays }).map((_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() + (i + 1));
-    const stepAqi = Math.round(referenceAqi + ((targetAqi - referenceAqi) / horizonDays) * (i + 1));
-    return {
-      date: d.toISOString().split('T')[0],
-      aqi: stepAqi,
-      category: getCategoryDefinition(stepAqi).category,
-      isForecast: true,
-      lowerBound: Math.max(10, stepAqi - (8 + i * 3)),
-      upperBound: Math.min(500, stepAqi + (10 + i * 4))
-    };
-  });
-
-  // Combine for single chart visualization
-  const combinedSeries: TrendDataPoint[] = [
-    ...historicalSeries,
-    ...forecastSeries
+  // Clearly marked demo vote scores; these are not real model probabilities.
+  const classScores = [
+    { direction: 'Increasing' as const, score: trendDirection === 'Increasing' ? 0.62 : 0.19 },
+    { direction: 'Stable' as const, score: trendDirection === 'Stable' ? 0.62 : 0.19 },
+    { direction: 'Decreasing' as const, score: trendDirection === 'Decreasing' ? 0.62 : 0.19 },
   ];
+  const scoreTotal = classScores.reduce((sum, item) => sum + item.score, 0);
+  const normalizedScores = classScores.map((item) => ({ ...item, score: item.score / scoreTotal }));
 
   return {
     city: cityName,
+    observationDate: historicalSeries[historicalSeries.length - 1]?.date ?? null,
     referenceAqi,
     currentCategory,
-    trendDirection: trendInfo.direction,
-    delta: trendInfo.delta,
-    percentageChange: trendInfo.percentageChange,
-    horizonDays,
-    calculationMethod: 'Slope and absolute threshold variance (±3 AQI margin)',
-    explanation: `Demo forecast values project a shift of ${trendInfo.delta > 0 ? '+' : ''}${trendInfo.delta.toFixed(1)} AQI (${trendInfo.percentageChange > 0 ? '+' : ''}${trendInfo.percentageChange.toFixed(1)}%) across the ${horizonDays}-day horizon. The system therefore classifies this sample trend as ${trendInfo.direction}.`,
+    trendDirection,
+    delta: null,
+    percentageChange: null,
+    horizonDays: 3,
+    calculationMethod: 'Mock trend-direction fixture (demonstration only)',
+    explanation: `This is synthetic mock output for ${cityName}. It shows a demonstration trend category only; no numerical future AQI values are predicted. Switch VITE_DATA_MODE=api to use the trained trend classifier.`,
+    classScores: normalizedScores,
     historicalSeries,
-    forecastSeries,
-    combinedSeries,
+    forecastSeries: [],
+    combinedSeries: historicalSeries,
     metadata: {
       data_source: 'demo',
       model_status: 'not_trained',
       model_name: null,
       prediction_type: 'demo',
       is_demo: true,
-      timestamp: new Date().toISOString()
-    }
+      timestamp: now.toISOString(),
+    },
   };
 }
