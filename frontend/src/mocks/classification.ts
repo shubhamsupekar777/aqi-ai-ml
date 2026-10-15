@@ -1,64 +1,104 @@
-import { ClassificationRequest, ClassificationResponse } from '../types/classification';
-import { getCategoryDefinition } from '../lib/aqi';
+import type {
+  ClassificationRequest,
+  ClassificationResponse,
+} from '../types/classification';
+import type { IndianCPCBCategory } from '../lib/aqi';
 
-export function generateMockClassification(request: ClassificationRequest): ClassificationResponse {
-  const aqiVal = Math.max(0, Math.round(request.aqi));
-  const categoryDef = getCategoryDefinition(aqiVal);
+interface CpcbDefinition {
+  category: IndianCPCBCategory;
+  color: string;
+  healthStatement: string;
+  cautionaryStatement: string;
+}
+
+const CPCB_DEFINITIONS: CpcbDefinition[] = [
+  {
+    category: 'Good',
+    color: '#10B981',
+    healthStatement: 'Air quality is good, with minimal health concern for most people.',
+    cautionaryStatement: 'Normal outdoor activities are generally suitable.',
+  },
+  {
+    category: 'Satisfactory',
+    color: '#84CC16',
+    healthStatement: 'Air quality is satisfactory, with possible minor discomfort for unusually sensitive people.',
+    cautionaryStatement: 'Most people can continue normal outdoor activities.',
+  },
+  {
+    category: 'Moderate',
+    color: '#F59E0B',
+    healthStatement: 'People with asthma or heart and lung conditions may experience breathing discomfort.',
+    cautionaryStatement: 'Sensitive individuals should consider reducing prolonged or strenuous outdoor activity.',
+  },
+  {
+    category: 'Poor',
+    color: '#F97316',
+    healthStatement: 'Prolonged exposure may cause breathing discomfort to many people.',
+    cautionaryStatement: 'Reduce prolonged outdoor exposure and strenuous activities.',
+  },
+  {
+    category: 'Very Poor',
+    color: '#EF4444',
+    healthStatement: 'Prolonged exposure may cause respiratory effects.',
+    cautionaryStatement: 'Limit outdoor exposure and follow local air-quality advisories.',
+  },
+  {
+    category: 'Severe',
+    color: '#881337',
+    healthStatement: 'Severe air pollution may affect healthy people and seriously impact sensitive groups.',
+    cautionaryStatement: 'Minimize outdoor exposure and follow official public-health advisories.',
+  },
+];
+
+function getCpcbDefinition(aqi: number): CpcbDefinition {
+  if (aqi <= 50) return CPCB_DEFINITIONS[0];
+  if (aqi <= 100) return CPCB_DEFINITIONS[1];
+  if (aqi <= 200) return CPCB_DEFINITIONS[2];
+  if (aqi <= 300) return CPCB_DEFINITIONS[3];
+  if (aqi <= 400) return CPCB_DEFINITIONS[4];
+  return CPCB_DEFINITIONS[5];
+}
+
+/**
+ * Explicit mock-only classification fixture.
+ * The real API path should be used when VITE_DATA_MODE=api.
+ * No values here represent database readings or trained-model output.
+ */
+export function generateMockClassification(
+  request: ClassificationRequest,
+): ClassificationResponse {
+  const demoAqi = 142;
+  const definition = getCpcbDefinition(demoAqi);
+  const now = new Date().toISOString();
+
+  const categoryDistribution = CPCB_DEFINITIONS.map((item) => ({
+    category: item.category,
+    count: 0,
+    percentage: 0,
+    color: item.color,
+  }));
 
   return {
-    aqi: aqiVal,
-    category: categoryDef.category,
-    schemeIdentifier: request.scheme || 'US_EPA',
-    explanation: `Numerical AQI of ${aqiVal} falls within threshold band [${categoryDef.min} - ${categoryDef.max}] according to the US EPA standard configuration.`,
-    healthStatement: categoryDef.healthStatement,
-    cautionaryStatement: categoryDef.cautionaryStatement,
-    color: categoryDef.color,
-    probabilities: null, // Note: Intentionally null per Phase 1 spec (no fabricated ML confidence scores)
-    history: [
-      {
-        id: 'cls-1',
-        timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-        aqi: aqiVal,
-        category: categoryDef.category,
-        city: request.city || 'Delhi'
-      },
-      {
-        id: 'cls-2',
-        timestamp: new Date(Date.now() - 35 * 60 * 1000).toISOString(),
-        aqi: 142,
-        category: 'Unhealthy for Sensitive Groups',
-        city: 'Hyderabad'
-      },
-      {
-        id: 'cls-3',
-        timestamp: new Date(Date.now() - 85 * 60 * 1000).toISOString(),
-        aqi: 45,
-        category: 'Good',
-        city: 'Bengaluru'
-      },
-      {
-        id: 'cls-4',
-        timestamp: new Date(Date.now() - 140 * 60 * 1000).toISOString(),
-        aqi: 95,
-        category: 'Moderate',
-        city: 'Mumbai'
-      }
-    ],
-    categoryDistribution: [
-      { category: 'Good', count: 12, percentage: 16.7, color: '#10B981' },
-      { category: 'Moderate', count: 28, percentage: 38.9, color: '#F59E0B' },
-      { category: 'Unhealthy for Sensitive Groups', count: 18, percentage: 25.0, color: '#F97316' },
-      { category: 'Unhealthy', count: 10, percentage: 13.9, color: '#EF4444' },
-      { category: 'Very Unhealthy', count: 4, percentage: 5.5, color: '#8B5CF6' },
-      { category: 'Hazardous', count: 0, percentage: 0.0, color: '#881337' }
-    ],
+    aqi: demoAqi,
+    city: request.city,
+    observationDate: 'demo-data-not-an-observation-date',
+    category: definition.category,
+    schemeIdentifier: 'INDIA_CPCB',
+    explanation:
+      'Mock demonstration only. This result is not generated by the trained Random Forest classifier and is not based on a stored observation.',
+    healthStatement: definition.healthStatement,
+    cautionaryStatement: definition.cautionaryStatement,
+    color: definition.color,
+    probabilities: null,
+    history: [],
+    categoryDistribution,
     metadata: {
       data_source: 'demo',
       model_status: 'not_trained',
       model_name: null,
       prediction_type: 'demo',
       is_demo: true,
-      timestamp: new Date().toISOString()
-    }
+      timestamp: now,
+    },
   };
 }

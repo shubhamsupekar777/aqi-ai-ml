@@ -1,0 +1,9 @@
+{
+  "accuracy": 0.8134858044164038,
+  "macro_precision": 0.8149119220037125,
+  "macro_recall": 0.7601584933182118,
+  "macro_f1": 0.7757022346423526,
+  "test_rows": 7608,
+  "training_rows": 13333,
+  "split_date": "2019-05-23"
+}

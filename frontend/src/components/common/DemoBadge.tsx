@@ -41,7 +41,7 @@ export const DemoBadge: React.FC<DemoBadgeProps> = ({
       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide uppercase bg-amber-50 border border-amber-200 text-amber-800 shadow-xs cursor-help ${className}`}
     >
       <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-      <span>DEMO DATA</span>
+      <span>HISTORICAL DATA</span>
     </span>
   );
 };
