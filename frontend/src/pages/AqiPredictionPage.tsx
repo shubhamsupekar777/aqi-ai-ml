@@ -121,6 +121,7 @@ export const AqiPredictionPage: React.FC = () => {
   } = useCities();
   const predictionMutation = usePrediction();
   const [result, setResult] = useState<PredictionResponse | null>(null);
+  const pageTopRef = useRef<HTMLDivElement | null>(null);
 
   // Use the city list returned by the configured data source. Do not silently
   // fall back to a hard-coded list if the API request fails.
@@ -216,10 +217,22 @@ export const AqiPredictionPage: React.FC = () => {
     });
   };
 
+  // const onSubmit = (values: FormValues) => {
+  //   if (values.horizon !== 'next_day') {
+  //     return;
+  //   }
+
   const onSubmit = (values: FormValues) => {
-    if (values.horizon !== 'next_day') {
-      return;
-    }
+  pageTopRef.current?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+  });
+
+  if (values.horizon !== 'next_day') {
+    return;
+  }
+
+  
 
     setResult(null);
 
@@ -262,7 +275,8 @@ export const AqiPredictionPage: React.FC = () => {
   const isDemoResult = result?.metadata?.is_demo ?? false;
 
   return (
-    <div className="space-y-6">
+    // <div className="space-y-6">
+    <div ref={pageTopRef} className="space-y-6 scroll-mt-4">
       <header>
         <div className="flex items-center gap-2 flex-wrap">
           <h1 className="text-2xl font-black tracking-tight text-slate-900">
