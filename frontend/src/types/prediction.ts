@@ -8,11 +8,7 @@ import type {
 
 import type { ApiResponseMetadata } from './api';
 
-export type PredictionHorizon =
-  | 'next_day'
-  | 'next_3_days'
-  | 'next_7_days';
-
+export type PredictionHorizon = 'next_day' | 'next_3_days';
 export type PredictionMode = 'automatic' | 'advanced';
 
 /**

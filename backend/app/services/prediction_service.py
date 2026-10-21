@@ -947,15 +947,21 @@ class PredictionService:
         }
 
     def predict(self, req: PredictionRequest) -> PredictionResponse:
-        # The deployed artifact was trained only for the next-day target.
-        if req.horizon != "next_day":
+        if req.horizon not in ("next_day", "next_3_days"):
             raise HTTPException(
                 status_code=400,
                 detail=(
-                    "This trained model supports next_day predictions only. "
-                    "Three-day and seven-day predictions are not implemented."
+                    "This trained model supports next_day and next_3_days predictions only. "
+                    "Seven-day predictions are not implemented."
                 ),
             )
+
+        horizon_days = 1 if req.horizon == "next_day" else 3
+        model_filename = (
+            "aqi_next_day.joblib"
+            if req.horizon == "next_day"
+            else "aqi_next_3day.joblib"
+        )
 
         mode = str(settings.PREDICTION_MODE).strip().lower()
         if mode != "ml":
@@ -973,6 +979,11 @@ class PredictionService:
             city,
             history_rows,
         )
+        if horizon_days == 3:
+            target_date = (
+                datetime.strptime(target_date, "%Y-%m-%d").date()
+                + timedelta(days=2)
+            ).strftime("%Y-%m-%d")
 
         # In Advanced Mode, only explicitly provided values override the historical
         # baseline. Missing optional fields keep their database/source-row values.
@@ -1017,7 +1028,7 @@ class PredictionService:
             predicted_aqi, model_name, is_demo = (
                 self.inference_engine.run_regression_inference(
                     features_dict=training_features,
-                    model_filename="aqi_next_day.joblib",
+                    model_filename=model_filename,
                 )
             )
         except ModelUnavailableException as exc:
@@ -1036,7 +1047,7 @@ class PredictionService:
                 city_id=city.id,
                 reference_aqi=reference_aqi,
                 predicted_aqi=predicted_aqi,
-                prediction_horizon="next_day",
+                prediction_horizon=req.horizon,
                 prediction_type="regression",
                 model_name=model_name,
                 is_demo=bool(is_demo),
@@ -1084,7 +1095,7 @@ class PredictionService:
             f"The trained model predicted an AQI of {predicted_aqi:.2f} for {city.name} "
             f"for {target_date}. The latest stored AQI observation is {reference_aqi:.2f} "
             f"dated {history_rows[0][0].observation_date}. {trend_explanation} "
-            f"Inputs were built from {input_description}. This is a next-observation "
+            f"Inputs were built from {input_description}. This is a {horizon_days}-day-ahead "
             "model prediction based on historical data, not a live AQI reading."
         )
 
@@ -1095,7 +1106,7 @@ class PredictionService:
             category=category_name,
             trend=trend_dir,
             riskLevel=risk_level,
-            horizon="next_day",
+            horizon=req.horizon,
             predictionTimestamp=now.isoformat(),
             confidenceInterval=None,
             featureDrivers=None,

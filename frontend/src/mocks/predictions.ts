@@ -1,4 +1,4 @@
-import { PredictionRequest, PredictionResponse } from '../types/prediction';
+﻿import { PredictionRequest, PredictionResponse } from '../types/prediction';
 import { getCategoryDefinition, getRiskAssessment, determineTrendDirection } from '../lib/aqi';
 import { CITY_BASE_AQI } from './cities';
 
@@ -6,16 +6,10 @@ export function generateMockPrediction(request: PredictionRequest): PredictionRe
   const cityProfile = CITY_BASE_AQI[request.city] || CITY_BASE_AQI['Delhi'];
   const referenceAqi = cityProfile.current;
 
-  // Multipliers based on horizon
-  let horizonFactor = 1.08;
-  let horizonDays = 1;
-  if (request.horizon === 'next_3_days') {
-    horizonFactor = 1.14;
-    horizonDays = 3;
-  } else if (request.horizon === 'next_7_days') {
-    horizonFactor = 1.22;
-    horizonDays = 7;
-  }
+
+  // Demo-only values; these are not trained-model predictions.
+  const horizonDays = request.horizon === 'next_3_days' ? 3 : 1;
+  const horizonFactor = horizonDays === 3 ? 1.14 : 1.08;
 
   // Adjust if advanced user features were provided
   let featureAdjustment = 0;
