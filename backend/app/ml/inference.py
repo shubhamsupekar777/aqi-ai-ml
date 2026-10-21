@@ -45,7 +45,8 @@ class InferenceEngine:
         if not np.isfinite(prediction):
             raise ValueError("Model returned an invalid prediction.")
 
-        return round(prediction, 2), "aqi_next_day", False
+        model_name = artifact.get("model_name") or model_filename.rsplit(".", 1)[0]
+        return round(prediction, 2), str(model_name), False
 
 
 

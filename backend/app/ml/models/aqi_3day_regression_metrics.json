@@ -1,0 +1,23 @@
+{
+  "model_name": "RandomForestRegressor_AQI_3Day",
+  "target": "AQI exactly 3 calendar days after the feature date",
+  "horizon_days": 3,
+  "data_path": "C:\\LocalProjects\\AirQualityAI\\data\\raw\\aqi_complete_dataset.csv",
+  "training_rows": 12581,
+  "holdout_rows": 7245,
+  "training_last_feature_date": "2019-05-16",
+  "holdout_start_date": "2019-05-20",
+  "holdout_end_date": "2020-06-21",
+  "cutoff_date": "2019-05-20",
+  "random_state": 42,
+  "model": {
+    "mae": 35.058925913548535,
+    "rmse": 60.52016032996411,
+    "r2": 0.6419476748508621
+  },
+  "persistence_baseline": {
+    "mae": 36.00648723257419,
+    "rmse": 69.08224861600866,
+    "r2": 0.5334703081427934
+  }
+}

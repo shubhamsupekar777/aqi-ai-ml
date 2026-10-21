@@ -1,27 +1,31 @@
-import os
-from typing import List, Union
+﻿import os
+from typing import List, Optional, Union
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    APP_NAME: str = "AQI AI — Environmental Intelligence Platform"
+    APP_NAME: str = "AQI AI â€” Environmental Intelligence Platform"
     APP_ENV: str = "development"
     DEBUG: bool = True
     API_V1_PREFIX: str = "/api/v1"
-    
+
     # Database
     # Defaults to PostgreSQL, gracefully falls back to local SQLite if PostgreSQL is unavailable
-    DATABASE_URL: str = "postgresql+psycopg://postgres:Shubham12345@localhost:5432/aqi"
+    DATABASE_URL: str = "postgresql+psycopg://postgres:CHANGE_ME@localhost:5432/aqi"
     SQLITE_FALLBACK_URL: str = "sqlite:///./aqi_ai.db"
 
-    
+    # data.gov.in API credentials. Keep the personal API key in .env only;
+    # never hardcode it in source code or commit it to GitHub.
+    DATA_GOV_IN_API_KEY: Optional[str] = None
+    DATA_GOV_IN_RESOURCE_ID: str = "3b01bcb8-0b14-4abf-b6f2-c1bfd384ba69"
+
     # CORS
     CORS_ORIGINS: Union[str, List[str]] = ["http://localhost:5173", "http://127.0.0.1:5173"]
-    
+
     # ML & Prediction
     PREDICTION_MODE: str = "demo"  # 'demo' or 'ml'
     MODEL_DIR: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ml", "models")
-    
+
     # Categorization Standard
     DEFAULT_AQI_STANDARD: str = "US_EPA"  # 'US_EPA' or 'INDIA_CPCB'
 
